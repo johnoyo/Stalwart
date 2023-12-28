@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Application.h"
+#include "Renderer.h"
 
 class Stalwart final : public Meek::Application
 {
@@ -11,9 +12,8 @@ class Stalwart final : public Meek::Application
 
     void Render();
 
+    Renderer m_Renderer;
+
     uint32_t m_ViewportWidth = 0;
     uint32_t m_ViewportHeight = 0;
-
-    uint32_t* m_ImageData = nullptr;
-    Meek::Image* m_Image = nullptr;
 };

@@ -2,6 +2,7 @@
 
 void Stalwart::OnAttach()
 {
+    Meek::Random::Init();
 }
 
 void Stalwart::OnGUIRender()
@@ -12,43 +13,35 @@ void Stalwart::OnGUIRender()
 
     if (ImGui::Button("Render"))
     {
-        Render();
     }
+    
+    Render();
 
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
     ImGui::End();
 
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     ImGui::Begin("Viewport");
 
     m_ViewportWidth = ImGui::GetContentRegionAvail().x;
     m_ViewportHeight = ImGui::GetContentRegionAvail().y;
 
-    if (m_Image)
+    Meek::Image* image = m_Renderer.GetFinalImage();
+
+    if (image)
     {
-        ImGui::Image(m_Image->GetID(), { (float)m_Image->GetWidth(), (float)m_Image->GetHeight() });
+        ImGui::Image(image->GetID(), { (float)image->GetWidth(), (float)image->GetHeight() }, { 0, 1}, { 1, 0});
     }
 
     ImGui::End();
+    ImGui::PopStyleVar();
 }
 
 void Stalwart::Render()
 {
     std::cout << "Rendering\n";
 
-    if (m_Image == nullptr || m_Image->GetWidth() != m_ViewportWidth || m_Image->GetHeight() != m_ViewportHeight)
-    {
-        m_Image = new Meek::Image(m_ViewportWidth, m_ViewportHeight);
-
-        delete[] m_ImageData;
-
-        m_ImageData = new uint32_t[m_ViewportWidth * m_ViewportHeight];
-    }
-
-    for (int i = 0; i < m_ViewportWidth * m_ViewportHeight; i++)
-    {
-        m_ImageData[i] = 0xffff00ff;
-    }
-
-    m_Image->Invalidate(m_ImageData);
+    m_Renderer.OnResize(m_ViewportWidth, m_ViewportHeight);
+    m_Renderer.Render();
 }
