@@ -1,4 +1,4 @@
-#include "SampleMeekApp.h"
+#include "Stalwart.h"
 
 int main()
 {
@@ -10,7 +10,7 @@ int main()
 	appSpec.ImGuiConfiguration |= ImGuiConfigFlags_DockingEnable;
 	appSpec.ImGuiConfiguration |= ImGuiConfigFlags_ViewportsEnable;
 
-	SampleMeekApp* app = new SampleMeekApp(appSpec);
+	Stalwart* app = new Stalwart(appSpec);
 
 	app->Run();
 

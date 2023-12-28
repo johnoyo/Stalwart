@@ -1,7 +1,7 @@
-workspace "MeekApp"
+workspace "Stalwart"
    architecture "x64"
    configurations { "Debug", "Release", "Dist" }
-   startproject "MeekApp"
+   startproject "Stalwart"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.architecture}"
 
@@ -75,8 +75,8 @@ group "Core"
             symbols "Off"
 group ""
 
-project "MeekApp"
-    location "MeekApp"
+project "Stalwart"
+    location "Stalwart"
     kind "ConsoleApp"
     language "C++"
     cppdialect "C++17"
