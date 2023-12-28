@@ -3,9 +3,16 @@
 void Stalwart::OnAttach()
 {
     Meek::Random::Init();
+
+    m_Camera = Camera(45.0f, 0.1f, 100.0f);
 }
 
-void Stalwart::OnGUIRender()
+void Stalwart::OnUpdate(float ts)
+{
+    m_Camera.OnUpdate(ts);
+}
+
+void Stalwart::OnGUIRender(float ts)
 {
     ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 
@@ -13,9 +20,7 @@ void Stalwart::OnGUIRender()
 
     if (ImGui::Button("Render"))
     {
-    }
-    
-    Render();
+    }    
 
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
@@ -36,6 +41,8 @@ void Stalwart::OnGUIRender()
 
     ImGui::End();
     ImGui::PopStyleVar();
+
+    Render();
 }
 
 void Stalwart::Render()
@@ -43,5 +50,6 @@ void Stalwart::Render()
     std::cout << "Rendering\n";
 
     m_Renderer.OnResize(m_ViewportWidth, m_ViewportHeight);
-    m_Renderer.Render();
+    m_Camera.OnResize(m_ViewportWidth, m_ViewportHeight);
+    m_Renderer.Render(m_Camera);
 }
