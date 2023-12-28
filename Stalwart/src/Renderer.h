@@ -16,7 +16,7 @@ public:
 	Meek::Image* GetFinalImage();
 
 private:
-	uint32_t PerPixel(glm::vec2& coord);
+	glm::vec4 PerPixel(glm::vec2& coord);
 
 private:
 	uint32_t* m_ImageData = nullptr;
