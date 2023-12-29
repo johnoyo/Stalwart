@@ -16,6 +16,7 @@ class Stalwart final : public Meek::Application
 
     Renderer m_Renderer;
     Camera m_Camera;
+    Scene m_Scene;
 
     uint32_t m_ViewportWidth = 0;
     uint32_t m_ViewportHeight = 0;
