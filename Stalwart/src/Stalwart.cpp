@@ -7,8 +7,9 @@ void Stalwart::OnAttach()
     Meek::Random::Init();
 
     m_Camera = Camera(45.0f, 0.1f, 100.0f);
+
     m_Scene.Spheres.push_back(Sphere{ {0.0f, 0.0f,0.0f}, 0.5f, { 1.0f, 0.0f, 1.0f, 1.0f } });
-    m_Scene.Spheres.push_back(Sphere{ {1.0f, 0.0f, -5.0f}, 1.5f, { 0.2f, 0.8f, 1.0f, 1.0f } });
+    m_Scene.Spheres.push_back(Sphere{ {0.0f, -21.6f, -0.8f}, 21.0f, { 0.2f, 0.8f, 1.0f, 1.0f } });
 }
 
 void Stalwart::OnUpdate(float ts)
