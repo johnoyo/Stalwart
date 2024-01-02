@@ -22,7 +22,10 @@ void Stalwart::OnAttach()
 
 void Stalwart::OnUpdate(float ts)
 {
-    m_Camera.OnUpdate(ts);
+    if (m_Camera.OnUpdate(ts))
+    {
+        m_Renderer.ReserFrameIndex();
+    }
 }
 
 void Stalwart::OnGUIRender(float ts)
@@ -34,7 +37,14 @@ void Stalwart::OnGUIRender(float ts)
     if (ImGui::Button("Render"))
     {
         Render();
-    }    
+    }
+
+    ImGui::Checkbox("Accumulate", &m_Renderer.GetSettings().Accumulate);
+
+    if (ImGui::Button("Reset"))
+    {
+        m_Renderer.ReserFrameIndex();
+    }
 
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 

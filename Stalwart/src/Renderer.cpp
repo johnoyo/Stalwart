@@ -18,22 +18,52 @@ void Renderer::Render(const Scene& scene, const Camera& camera)
     m_ActiveCamera = &camera;
     m_ActiveScene = &scene;
 
+    if (m_FrameIndex == 1)
+    {
+        memset(m_AccumulationData, 0, m_FinalImage->GetWidth() * m_FinalImage->GetHeight() * sizeof(glm::vec4));
+    }
+
     for (int y = 0; y < m_FinalImage->GetHeight(); y++)
     {
         for (int x = 0; x < m_FinalImage->GetWidth(); x++)
         {
             glm::vec4 color = PerPixel(x, y);
-            color = glm::clamp(color, glm::vec4(0.0f), glm::vec4(1.0f));
-            m_ImageData[x + y * (uint32_t)m_FinalImage->GetWidth()] = Utilities::ConvertToRGBA(color);
+
+            m_AccumulationData[x + y * (uint32_t)m_FinalImage->GetWidth()] += color;
+
+            glm::vec4 accumulatedColor = m_AccumulationData[x + y * (uint32_t)m_FinalImage->GetWidth()];
+            accumulatedColor /= (float)m_FrameIndex;
+
+            accumulatedColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f));
+            m_ImageData[x + y * (uint32_t)m_FinalImage->GetWidth()] = Utilities::ConvertToRGBA(accumulatedColor);
         }
     }
 
     m_FinalImage->Invalidate(m_ImageData);
+
+    if (m_Settings.Accumulate)
+    {
+        m_FrameIndex++;
+    }
+    else
+    {
+        m_FrameIndex = 1;
+    }
 }
 
 Meek::Image* Renderer::GetFinalImage()
 {
     return m_FinalImage;
+}
+
+void Renderer::ReserFrameIndex()
+{
+    m_FrameIndex = 1;
+}
+
+Renderer::Settings& Renderer::GetSettings()
+{
+    return m_Settings;
 }
 
 glm::vec4 Renderer::PerPixel(uint32_t x, uint32_t y)
@@ -155,11 +185,12 @@ void Renderer::OnResize(uint32_t width, uint32_t height)
     if (m_FinalImage == nullptr || m_FinalImage->GetWidth() != width || m_FinalImage->GetHeight() != height)
     {
         delete m_FinalImage;
-
         m_FinalImage = new Meek::Image(width, height);
 
         delete[] m_ImageData;
-
         m_ImageData = new uint32_t[width * height];
+
+        delete[] m_AccumulationData;
+        m_AccumulationData = new glm::vec4[width * height];
     }
 }

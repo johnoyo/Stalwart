@@ -12,12 +12,20 @@
 class Renderer
 {
 public:
+	struct Settings
+	{
+		bool Accumulate = true;
+	};
+
 	Renderer() = default;
 
 	void OnResize(uint32_t width, uint32_t height);
 	void Render(const Scene& scene, const Camera& camera);
 
 	Meek::Image* GetFinalImage();
+
+	void ReserFrameIndex();
+	Settings& GetSettings();
 
 private:
 	struct HitPayload
@@ -34,9 +42,15 @@ private:
 	HitPayload Miss(const Ray& ray);
 
 private:
+	Settings m_Settings;
+
 	uint32_t* m_ImageData = nullptr;
+	glm::vec4* m_AccumulationData = nullptr;
+
 	Meek::Image* m_FinalImage = nullptr;
 
 	const Scene* m_ActiveScene = nullptr;
 	const Camera* m_ActiveCamera = nullptr;
+
+	uint32_t m_FrameIndex = 1;
 };
