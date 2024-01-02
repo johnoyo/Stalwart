@@ -44,32 +44,34 @@ glm::vec4 Renderer::PerPixel(uint32_t x, uint32_t y)
 
     glm::vec3 color(0.0f);
     float multiplier = 1.0f;
-    int bounces = 2;
+
+    int bounces = 5;
     for (int i = 0; i < bounces; i++)
     {
         Renderer::HitPayload payload = TraceRay(ray);
 
         if (payload.HitDistance < 0.0f)
         {
-            glm::vec3 skyColor(0.0f);
+            glm::vec3 skyColor(0.6f, 0.7f, 0.9f);
             color += skyColor * multiplier;
             break;
         }
 
         glm::vec3 lightDirection = glm::normalize(glm::vec3(-1, -1, -1));
 
-        float d = glm::max(glm::dot(payload.WorldNormal, -lightDirection), 0.0f); // == cos(theta)
+        float d = (glm::max)(glm::dot(payload.WorldNormal, -lightDirection), 0.0f); // == cos(theta)
 
         const Sphere& sphere = m_ActiveScene->Spheres[payload.ObjectIndex];
+        const Material& material = m_ActiveScene->Materials[sphere.MaterialIndex];
 
-        glm::vec3 sphereColor = sphere.Albedo;
+        glm::vec3 sphereColor = material.Albedo;
         sphereColor *= d;
         color += sphereColor * multiplier;
 
-        multiplier *= 0.7f;
+        multiplier *= 0.5f;
 
         ray.Origin = payload.WorldPosition + payload.WorldNormal * 0.0001f;
-        ray.Direction = glm::reflect(ray.Direction, payload.WorldNormal);
+        ray.Direction = glm::reflect(ray.Direction, payload.WorldNormal + material.Roughness * Meek::Random::Vec3(-0.5f, 0.5f));
     }
 
     return glm::vec4(color, 1.0f);
