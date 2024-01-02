@@ -49,6 +49,9 @@ private:
 
 	Meek::Image* m_FinalImage = nullptr;
 
+	std::vector<uint32_t> m_ImageHorizontalIterator;
+	std::vector<uint32_t> m_ImageVerticalIterator;
+
 	const Scene* m_ActiveScene = nullptr;
 	const Camera* m_ActiveCamera = nullptr;
 
