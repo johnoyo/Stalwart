@@ -28,7 +28,7 @@ void Renderer::Render(const Scene& scene, const Camera& camera)
 #if MT
     std::for_each(std::execution::par, m_ImageVerticalIterator.begin(), m_ImageVerticalIterator.end(), [this](uint32_t y)
     {
-        std::for_each(std::execution::par, m_ImageVerticalIterator.begin(), m_ImageVerticalIterator.end(), [this, y](uint32_t x)
+        std::for_each(std::execution::par, m_ImageHorizontalIterator.begin(), m_ImageHorizontalIterator.end(), [this, y](uint32_t x)
         {
             glm::vec4 color = PerPixel(x, y);
 
