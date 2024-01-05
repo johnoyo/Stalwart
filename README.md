@@ -2,6 +2,8 @@
 
 Stalwart is simple CPU Raytracer built with [Meek](https://github.com/johnoyo/Meek).
 
+![image](https://github.com/johnoyo/Stalwart/assets/61438419/2862f244-7643-45e3-ab72-3301aafa6846)
+
 Installation:
 -------------
 
