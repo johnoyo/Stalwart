@@ -19,6 +19,8 @@ struct Sphere
 	glm::vec3 Position{0.0f};
 	float Radius = 0.5f;
 	int MaterialIndex = 0;
+
+	std::string Name = "New Sphere";
 };
 
 struct Scene

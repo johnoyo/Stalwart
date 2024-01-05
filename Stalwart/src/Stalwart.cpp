@@ -29,11 +29,11 @@ void Stalwart::OnAttach()
     whiteSphere.Albedo = { 1.0f, 1.0f, 1.0f };
     whiteSphere.Roughness = 1.0f;
 
-    m_Scene.Spheres.push_back(Sphere{ {0.0f, 0.0f, 0.0f}, 0.5f, 4 });
-    m_Scene.Spheres.push_back(Sphere{ {-1.5f, 0.0f, 0.8f}, 0.5f, 0 });
-    m_Scene.Spheres.push_back(Sphere{ {1.5f, 0.0f, 0.8f}, 0.5f, 3 });
-    m_Scene.Spheres.push_back(Sphere{ {0.0f, -21.5f, -0.8f}, 21.0f, 1 });
-    m_Scene.Spheres.push_back(Sphere{ {0.0f, 20.0f, -10.0f}, 0.8f, 2 });
+    m_Scene.Spheres.push_back(Sphere{ {0.0f, 0.0f, 0.0f}, 0.5f, 4, "White Sphere"});
+    m_Scene.Spheres.push_back(Sphere{ {-1.5f, 0.0f, 0.8f}, 0.5f, 0, "Green Sphere" });
+    m_Scene.Spheres.push_back(Sphere{ {1.5f, 0.0f, 0.8f}, 0.5f, 3, "Red Sphere" });
+    m_Scene.Spheres.push_back(Sphere{ {0.0f, -21.5f, -0.8f}, 21.0f, 1, "Big Blue Sphere" });
+    m_Scene.Spheres.push_back(Sphere{ {0.0f, 20.0f, -10.0f}, 0.8f, 2, "Emissive Sphere" });
 }
 
 void Stalwart::OnUpdate(float ts)
@@ -48,53 +48,68 @@ void Stalwart::OnGUIRender(float ts)
 {
     ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 
-    ImGui::Begin("Settings");
+    ImGui::Begin("Scene Hierachy");
 
-    if (ImGui::Button("Render"))
+    if (ImGui::BeginPopupContextWindow(0, ImGuiPopupFlags_NoOpenOverItems | ImGuiPopupFlags_MouseButtonRight))
     {
-        Render();
+        if (ImGui::MenuItem("Add New Sphere"))
+        {
+            m_Scene.Spheres.push_back(Sphere{ {0.0f, 0.0f, 0.0f}, 0.5f, 0 });
+        }
+
+        ImGui::EndPopup();
     }
 
-    ImGui::Checkbox("Accumulate", &m_Renderer.GetSettings().Accumulate);
+    for (int i = 0; i < m_Scene.Spheres.size(); i++)
+    {
+        ImGuiTreeNodeFlags flags = ((m_SelectedSphere == &m_Scene.Spheres[i]) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
+        bool opened = ImGui::TreeNodeEx((void*)(uint64_t)&m_Scene.Spheres[i], flags, m_Scene.Spheres[i].Name.c_str());
 
+        if (ImGui::IsItemClicked())
+        {
+            m_SelectedSphere = &m_Scene.Spheres[i];
+        }
+
+        if (opened)
+        {
+            ImGui::TreePop();
+        }
+    }
+
+    ImGui::End();
+
+    ImGui::Begin("Properties");
+    if (m_SelectedSphere != nullptr)
+    {
+        char* name = (char*)m_SelectedSphere->Name.c_str();
+        int maxNameSize = 256;
+        ImGui::InputText("Name", name, maxNameSize);
+        ImGui::DragFloat3("Position", glm::value_ptr(m_SelectedSphere->Position), 0.1f);
+        ImGui::DragFloat("Radius", &m_SelectedSphere->Radius, 0.1f);
+        ImGui::DragInt("Material", &m_SelectedSphere->MaterialIndex, 1.0f, 0.0f, (int)m_Scene.Materials.size() - 1);
+    }
+    ImGui::End();
+
+    ImGui::Begin("Material");
+    if (m_SelectedSphere != nullptr)
+    {
+        int materialIndex = m_SelectedSphere->MaterialIndex;
+        ImGui::ColorEdit3("Albedo", glm::value_ptr(m_Scene.Materials[materialIndex].Albedo));
+        ImGui::DragFloat("Roughness", &m_Scene.Materials[materialIndex].Roughness, 0.05f, 0.0f, 1.0f);
+        ImGui::DragFloat("Metallic", &m_Scene.Materials[materialIndex].Metallic, 0.05f, 0.0f, 1.0f);
+        ImGui::ColorEdit3("Emission Color", glm::value_ptr(m_Scene.Materials[materialIndex].EmissionColor));
+        ImGui::DragFloat("Emission Power", &m_Scene.Materials[materialIndex].EmissionPower, 0.05f, 0.0f, FLT_MAX);
+    }
+    ImGui::End();
+
+    ImGui::Begin("Scene Settings");
+    ImGui::ColorEdit3("Sky color", glm::value_ptr(m_Scene.SkyColor));
+    ImGui::Checkbox("Accumulate", &m_Renderer.GetSettings().Accumulate);
     if (ImGui::Button("Reset"))
     {
         m_Renderer.ReserFrameIndex();
     }
-
-    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
-    ImGui::End();
-
-    ImGui::Begin("Scene");
-    for (int i = 0; i < m_Scene.Spheres.size(); i++)
-    {
-        ImGui::PushID(i);
-
-        ImGui::DragFloat3("Position", glm::value_ptr(m_Scene.Spheres[i].Position), 0.1f);
-        ImGui::DragFloat("Radius", &m_Scene.Spheres[i].Radius, 0.1f);
-        ImGui::DragInt("Material", &m_Scene.Spheres[i].MaterialIndex, 1.0f, 0.0f, (int)m_Scene.Materials.size() - 1);
-
-        ImGui::Separator();
-
-        ImGui::PopID();
-    }
-
-    for (int i = 0; i < m_Scene.Materials.size(); i++)
-    {
-        ImGui::PushID(i);
-
-        ImGui::ColorEdit3("Albedo", glm::value_ptr(m_Scene.Materials[i].Albedo));
-        ImGui::DragFloat("Roughness", &m_Scene.Materials[i].Roughness, 0.05f, 0.0f, 1.0f);
-        ImGui::DragFloat("Metallic", &m_Scene.Materials[i].Metallic, 0.05f, 0.0f, 1.0f);
-        ImGui::ColorEdit3("Emission Color", glm::value_ptr(m_Scene.Materials[i].EmissionColor));
-        ImGui::DragFloat("Emission Power", &m_Scene.Materials[i].EmissionPower, 0.05f, 0.0f, FLT_MAX);
-
-        ImGui::Separator();
-
-        ImGui::PopID();
-    }
-
+    ImGui::Text("Metrics: %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::End();
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
